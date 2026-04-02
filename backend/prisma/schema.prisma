@@ -1,0 +1,759 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+model Account {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String  @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Application {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status      ApplicationStatus @default(PENDING)
+  resumeUrl   String?
+  coverLetter String?
+  experience  Json?
+  userId      String            @db.Uuid
+  jobId       String            @db.Uuid
+  appliedAt   DateTime          @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime          @default(now()) @db.Timestamp(6)
+  Job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User        User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, jobId])
+}
+
+model Block {
+  id                           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  blockedById                  String   @db.Uuid
+  blockedId                    String   @db.Uuid
+  createdAt                    DateTime @default(now()) @db.Timestamp(6)
+  User_Block_blockedByIdToUser User     @relation("Block_blockedByIdToUser", fields: [blockedById], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User_Block_blockedIdToUser   User     @relation("Block_blockedIdToUser", fields: [blockedId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([blockedById, blockedId])
+}
+
+model Blog {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  slug            String        @unique
+  content         String
+  excerpt         String?
+  imageUrl        String?
+  additionalImages String[]
+  status          BlogStatus    @default(DRAFT)
+  category        String        @default("Nursing Tips")
+  tags            String[]
+  author          String        @default("Admin")
+  isSponsored     Boolean       @default(false)
+  metaTitle       String?
+  metaDescription String?
+  publishedAt     DateTime?     @db.Timestamp(6)
+  createdAt       DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime      @default(now()) @db.Timestamp(6)
+  BlogComment     BlogComment[]
+}
+
+model BlogComment {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content           String
+  authorName        String
+  authorEmail       String
+  isApproved        Boolean       @default(false)
+  isSpam            Boolean       @default(false)
+  blogId            String        @db.Uuid
+  parentId          String?       @db.Uuid
+  createdAt         DateTime      @default(now()) @db.Timestamp(6)
+  Blog              Blog          @relation(fields: [blogId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  BlogComment       BlogComment?  @relation("BlogCommentToBlogComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_BlogComment BlogComment[] @relation("BlogCommentToBlogComment")
+}
+
+model CommunityPost {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  content      String
+  isLocked     Boolean        @default(false)
+  isPinned     Boolean        @default(false)
+  authorId     String         @db.Uuid
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime       @default(now()) @db.Timestamp(6)
+  User         User           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  IssueReport  IssueReport[]
+  PostComment  PostComment[]
+  PostReaction PostReaction[]
+}
+
+model Company {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  slug            String         @unique
+  category        String
+  description     String
+  logoUrl         String?
+  bannerUrl       String?
+  videoUrl        String?
+  status          CompanyStatus  @default(DRAFT)
+  isFeatured      Boolean        @default(false)
+  featuredAt      DateTime?      @db.Timestamp(6)
+  phone           String?
+  whatsapp        String?
+  email           String?
+  website         String?
+  address         String?
+  zipCode         String?
+  telegramId      String?
+  metaTitle       String?
+  metaDescription String?
+  ownerId         String         @db.Uuid
+  createdAt       DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime       @default(now()) @db.Timestamp(6)
+  User            User           @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  CompanyImage    CompanyImage[]
+  IssueReport     IssueReport[]
+  Job             Job[]
+  Review          Review[]
+  SavedCompany    SavedCompany[]
+}
+
+model CompanyImage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url       String
+  altText   String?
+  order     Int      @default(0)
+  companyId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Conversation {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String?
+  isGroup            Boolean              @default(false)
+  createdAt          DateTime             @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime             @default(now()) @db.Timestamp(6)
+  ConversationMember ConversationMember[]
+  Message            Message[]
+}
+
+model ConversationMember {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String       @db.Uuid
+  userId         String       @db.Uuid
+  joinedAt       DateTime     @default(now()) @db.Timestamp(6)
+  lastReadAt     DateTime?    @db.Timestamp(6)
+  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([conversationId, userId])
+}
+
+model EmployerProfile {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyName     String?
+  about           String?
+  companyCategory String?
+  companySize     String?
+  foundedYear     String?
+  revenue         String?
+  bannerUrl       String?
+  videoUrl        String?
+  tags            String[]
+  phone           String?
+  website         String?
+  location        String?
+  address         String?
+  addressLine2    String?
+  city            String?
+  state           String?
+  zipCode         String?
+  country         String?
+  latitude        Float?
+  longitude       Float?
+  facebook        String?
+  twitter         String?
+  instagram       String?
+  linkedin        String?
+  googlePlus      String?
+  userId          String   @unique @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @db.Timestamp(6)
+  User            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model IssueReport {
+  id                                    String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category                              String
+  message                               String
+  status                                ReportStatus   @default(PENDING)
+  reportedById                          String         @db.Uuid
+  reportedUserId                        String?        @db.Uuid
+  jobId                                 String?        @db.Uuid
+  companyId                             String?        @db.Uuid
+  postId                                String?        @db.Uuid
+  resolvedAt                            DateTime?      @db.Timestamp(6)
+  resolvedBy                            String?
+  adminNote                             String?
+  createdAt                             DateTime       @default(now()) @db.Timestamp(6)
+  Company                               Company?       @relation(fields: [companyId], references: [id], onUpdate: NoAction)
+  Job                                   Job?           @relation(fields: [jobId], references: [id], onUpdate: NoAction)
+  CommunityPost                         CommunityPost? @relation(fields: [postId], references: [id], onUpdate: NoAction)
+  User_IssueReport_reportedByIdToUser   User           @relation("IssueReport_reportedByIdToUser", fields: [reportedById], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User_IssueReport_reportedUserIdToUser User?          @relation("IssueReport_reportedUserIdToUser", fields: [reportedUserId], references: [id], onUpdate: NoAction)
+}
+
+model Job {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  slug            String        @unique
+  specialty       String?
+  location        String
+  jobType         String
+  jobLevel        String?       // New field
+  experience      String?       // New field
+  qualificationLevel String?    // New field
+  gender          String?       // New field
+  totalOpenings   String?       // New field
+  skills          String?       // New field
+  videoUrl        String?       // New field
+  bannerUrl       String?       // New field
+  startDate       String?       // New field
+  deadline        String?       // New field
+  jobFeeType      String?       // New field
+  permanentAddress String?      // New field
+  temporaryAddress String?      // New field
+  country         String?       // New field
+  responsibilities String?      // New field
+  salaryMin       Int?
+  salaryMax       Int?
+  salaryCurrency  String?       @default("USD")
+  salaryPeriod    String?
+  description     String
+  requirements    String?
+  benefits        String?
+  shiftDetails    String?
+  imageUrl        String?
+  latitude        Float?
+  longitude       Float?
+  zipCode         String?
+  status          JobStatus     @default(PENDING)
+  expiresAt       DateTime?     @db.Timestamp(6)
+  isFree          Boolean       @default(false)
+  metaTitle       String?
+  metaDescription String?
+  companyId       String        @db.Uuid
+  postedById      String        @db.Uuid
+  createdAt       DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime      @default(now()) @db.Timestamp(6)
+  Application     Application[]
+  IssueReport     IssueReport[]
+  Company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User            User          @relation(fields: [postedById], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Review          Review[]
+  SavedJob        SavedJob[]
+}
+
+model Message {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content        String
+  status         MessageStatus @default(SENT)
+  isReported     Boolean       @default(false)
+  conversationId String        @db.Uuid
+  senderId       String        @db.Uuid
+  createdAt      DateTime      @default(now()) @db.Timestamp(6)
+  Conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User           User          @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model Newsletter {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String
+  subject         String
+  content         String
+  type            NewsletterType
+  status          NewsletterStatus  @default(DRAFT)
+  isSponsored     Boolean           @default(false)
+  scheduledAt     DateTime?         @db.Timestamp(6)
+  sentAt          DateTime?         @db.Timestamp(6)
+  createdAt       DateTime          @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime          @default(now()) @db.Timestamp(6)
+  NewsletterClick NewsletterClick[]
+  NewsletterOpen  NewsletterOpen[]
+}
+
+model NewsletterClick {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subscriberId         String               @db.Uuid
+  newsletterId         String               @db.Uuid
+  url                  String
+  clickedAt            DateTime             @default(now()) @db.Timestamp(6)
+  Newsletter           Newsletter           @relation(fields: [newsletterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  NewsletterSubscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model NewsletterOpen {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subscriberId         String               @db.Uuid
+  newsletterId         String               @db.Uuid
+  openedAt             DateTime             @default(now()) @db.Timestamp(6)
+  Newsletter           Newsletter           @relation(fields: [newsletterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  NewsletterSubscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([subscriberId, newsletterId])
+}
+
+model NewsletterPreference {
+  id     String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String           @unique @db.Uuid
+  types  NewsletterType[]
+  User   User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model NewsletterSubscriber {
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                String                 @unique
+  isActive             Boolean                @default(true)
+  subscribedAt         DateTime               @default(now()) @db.Timestamp(6)
+  unsubscribedAt       DateTime?              @db.Timestamp(6)
+  token                String                 @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  NewsletterClick      NewsletterClick[]
+  NewsletterOpen       NewsletterOpen[]
+  SubscriberPreference SubscriberPreference[]
+}
+
+model Notification {
+  id        String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String
+  message   String
+  type      NotificationType
+  channel   NotificationChannel @default(IN_APP)
+  isRead    Boolean             @default(false)
+  metadata  Json?
+  userId    String              @db.Uuid
+  createdAt DateTime            @default(now()) @db.Timestamp(6)
+  User      User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model NurseProfile {
+  id                 String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName           String?
+  phone              String?
+  location           String?
+  address            String?
+  addressLine2       String?
+  state              String?
+  zipCode            String?
+  country            String?
+  latitude           Float?
+  longitude          Float?
+  licenseType        LicenseType?
+  licenseNumber      String?
+  specialization     String?
+  yearsOfExperience  Int?         @default(0)
+  age                Int?
+  languages          String?
+  bio                String?
+  resumeUrl          String?
+  documents          Json?
+  education          Json?
+  experience         Json?
+  awards             Json?
+  employmentPref     String[]
+  skills             String[]
+  minPay             Int?
+  payPeriod          String?
+  currency           String?      @default("USD")
+  preferredJobTitles String[]
+  
+  facebook           String?
+  twitter            String?
+  instagram          String?
+  linkedin           String?
+  googlePlus         String?
+  userId             String       @unique @db.Uuid
+  createdAt          DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime     @default(now()) @db.Timestamp(6)
+  User               User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model NurseRecord {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName               String
+  email                  String?  @unique
+  phone                  String?
+  location               String?
+  state                  String?
+  licenseType            String?
+  specialization         String?
+  yearsOfExp             Int?
+  isNewsletterSubscriber Boolean  @default(false)
+  source                 String?
+  createdAt              DateTime @default(now()) @db.Timestamp(6)
+  updatedAt              DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([email], map: "idx_nurse_record_email")
+  @@index([licenseType], map: "idx_nurse_record_license")
+  @@index([specialization], map: "idx_nurse_record_specialization")
+  @@index([state], map: "idx_nurse_record_state")
+}
+
+model PostComment {
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content           String
+  authorId          String         @db.Uuid
+  postId            String         @db.Uuid
+  parentId          String?        @db.Uuid
+  createdAt         DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime       @default(now()) @db.Timestamp(6)
+  User              User           @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  PostComment       PostComment?   @relation("PostCommentToPostComment", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_PostComment PostComment[]  @relation("PostCommentToPostComment")
+  CommunityPost     CommunityPost  @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  PostReaction      PostReaction[]
+}
+
+model PostReaction {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type          String
+  userId        String         @db.Uuid
+  postId        String?        @db.Uuid
+  commentId     String?        @db.Uuid
+  createdAt     DateTime       @default(now()) @db.Timestamp(6)
+  PostComment   PostComment?   @relation(fields: [commentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  CommunityPost CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, commentId])
+  @@unique([userId, postId])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Review {
+  id                           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rating                       Int
+  metadata                     Json?
+  comment                      String?
+  reviewerId                   String   @db.Uuid
+  nurseId                      String?  @db.Uuid
+  jobId                        String?  @db.Uuid
+  companyId                    String?  @db.Uuid
+  createdAt                    DateTime @default(now()) @db.Timestamp(6)
+  Company                      Company? @relation(fields: [companyId], references: [id], onUpdate: NoAction)
+  Job                          Job?     @relation(fields: [jobId], references: [id], onUpdate: NoAction)
+  User_Review_nurseIdToUser    User?    @relation("Review_nurseIdToUser", fields: [nurseId], references: [id], onUpdate: NoAction)
+  User_Review_reviewerIdToUser User     @relation("Review_reviewerIdToUser", fields: [reviewerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model SavedCompany {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  companyId String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  Company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, companyId])
+}
+
+model SavedJob {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  jobId     String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  Job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, jobId])
+}
+
+model ServiceRequest {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName    String
+  email       String
+  phone       String?
+  serviceType String
+  message     String
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+}
+
+model Session {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime @db.Timestamp(6)
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model SubscriberPreference {
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subscriberId         String               @db.Uuid
+  newsletterType       NewsletterType
+  isEnabled            Boolean              @default(true)
+  NewsletterSubscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([subscriberId, newsletterType])
+}
+
+model Subscription {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status           SubscriptionStatus @default(ACTIVE)
+  startDate        DateTime           @default(now()) @db.Timestamp(6)
+  endDate          DateTime?          @db.Timestamp(6)
+  jobsPostedCount  Int                @default(0)
+  autoRenew        Boolean            @default(false)
+  userId           String             @db.Uuid
+  planId               String             @db.Uuid
+  stripeSubscriptionId String?            @unique
+  stripeCustomerId     String?
+  amountPaid           Decimal?           @db.Decimal
+  currency             String?            @default("USD")
+  createdAt            DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime           @default(now()) @db.Timestamp(6)
+  SubscriptionPlan     SubscriptionPlan   @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User                 User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  PaymentTransaction   PaymentTransaction[]
+}
+
+model StripeEvent {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId   String   @unique
+  type      String
+  status    String   @default("PROCESSED") // PROCESSED, FAILED
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+}
+
+model PaymentTransaction {
+  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  transactionId         String?      @unique // TXN-XXXXXX internal ID
+  subscriptionId       String       @db.Uuid
+  stripeInvoiceId      String?      @unique
+  stripeSubscriptionId String?
+  amount               Decimal      @db.Decimal
+  currency             String
+  paymentMethod        String       @default("STRIPE") // STRIPE, MANUAL, etc.
+  senderName           String?
+  senderEmail          String?
+  receiverName         String       @default("America Needs Nurses")
+  receiverAccount      String?
+  status               String       @default("PENDING") // SUCCESS, FAILED, PENDING
+  isVerified           Boolean      @default(false)
+  invoiceUrl           String?      // Internal generated PDF path
+  receiptUrl           String?      // Legacy or user-uploaded path for manual
+  verifiedAt           DateTime?    @db.Timestamp(6)
+  verifiedBy           String?      
+  metadata             Json?
+  createdAt            DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime     @updatedAt @db.Timestamp(6)
+  Subscription         Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model SubscriptionPlan {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  price        Decimal        @db.Decimal
+  currency     String         @default("USD")
+  billingCycle String
+  jobsLimit    Int
+  features     String[]
+  isPopular    Boolean        @default(false)
+  isActive     Boolean        @default(true)
+  badge        String?
+  headerStyle  String?        @default("basic")
+  buttonLabel  String?        @default("Get Started")
+  buttonStyle  String?        @default("outline")
+  stripeProductId String?
+  stripePriceId String?
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime       @default(now()) @db.Timestamp(6)
+  Subscription Subscription[]
+}
+
+
+model User {
+  id                                           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                                         String?
+  email                                        String                @unique
+  emailVerified                                DateTime?             @db.Timestamp(6)
+  image                                        String?
+  password                                     String?
+  role                                         Role                  @default(NURSE)
+  status                                       UserStatus            @default(PENDING)
+  isOnboarded                                  Boolean               @default(false)
+  createdAt                                    DateTime              @default(now()) @db.Timestamp(6)
+  lastSeen                                     DateTime?             @db.Timestamp(6)
+  updatedAt                                    DateTime              @default(now()) @db.Timestamp(6)
+  Account                                      Account[]
+  Application                                  Application[]
+  Block_Block_blockedByIdToUser                Block[]               @relation("Block_blockedByIdToUser")
+  Block_Block_blockedIdToUser                  Block[]               @relation("Block_blockedIdToUser")
+  CommunityPost                                CommunityPost[]
+  Company                                      Company[]
+  ConversationMember                           ConversationMember[]
+  EmployerProfile                              EmployerProfile?
+  IssueReport_IssueReport_reportedByIdToUser   IssueReport[]         @relation("IssueReport_reportedByIdToUser")
+  IssueReport_IssueReport_reportedUserIdToUser IssueReport[]         @relation("IssueReport_reportedUserIdToUser")
+  Message                                      Message[]
+  NewsletterPreference                         NewsletterPreference?
+  Notification                                 Notification[]
+  NurseProfile                                 NurseProfile?
+  PostComment                                  PostComment[]
+  PostReaction                                 PostReaction[]
+  Review_Review_nurseIdToUser                  Review[]              @relation("Review_nurseIdToUser")
+  Review_Review_reviewerIdToUser               Review[]              @relation("Review_reviewerIdToUser")
+  SavedCompany                                 SavedCompany[]
+  SavedJob                                     SavedJob[]
+  Session                                      Session[]
+  Subscription                                 Subscription[]
+  Job                                          Job[]
+}
+
+model VerificationToken {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  identifier String
+  token      String   @unique
+  expires    DateTime @db.Timestamp(6)
+  type       String   @default("EMAIL_VERIFY")
+
+  @@unique([identifier, token])
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  SHORTLISTED
+  REJECTED
+  HIRED
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CompanyStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum JobStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CLOSED
+}
+
+enum LicenseType {
+  RN
+  LPN
+  LVN
+  NP
+  CRNA
+  CNM
+  OTHER
+}
+
+enum MessageStatus {
+  SENT
+  READ
+  DELETED
+}
+
+enum NewsletterStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+}
+
+enum NewsletterType {
+  JOB_ALERT
+  COMPANY_HIGHLIGHT
+  WEEKLY_CONTENT
+  SPONSORED
+}
+
+enum NotificationChannel {
+  EMAIL
+  IN_APP
+}
+
+enum NotificationType {
+  COMPANY_APPROVED
+  COMPANY_REJECTED
+  JOB_APPROVED
+  JOB_EXPIRED
+  APPLICATION_UPDATE
+  NEW_MESSAGE
+  SUBSCRIPTION_EXPIRY
+  NEWSLETTER
+  COMMUNITY_REPORT
+  CONTACT_SUBMISSION
+  BLOG_PUBLISHED
+  PROFILE_VIEWED
+  NEW_APPLICATION
+  PAYMENT_SUCCESS
+  PAYMENT_VERIFIED
+  PAYMENT_FAILED
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  IGNORED
+}
+
+enum Role {
+  SUPER_ADMIN
+  CONTENT_ADMIN
+  SUPPORT_ADMIN
+  EMPLOYER
+  NURSE
+  GUEST
+}
+
+enum SubscriptionStatus {
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  UNPAID
+  PENDING_VERIFICATION
+  REJECTED
+  EXPIRED
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
