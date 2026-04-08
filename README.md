@@ -3,6 +3,14 @@
 
 ![ANN Banner](frontend/public/hero-bg.png)
 
+<p align="center">
+  <img src="https://img.shields.io/badge/NEXT.JS-15.0_APP_ROUTER-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/NESTJS-BACKEND_CORE-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/PRISMA-POSTGRESQL-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
+  <img src="https://img.shields.io/badge/MONGODB-DATABASE-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/TAILWIND_CSS-MODERN_UI-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+</p>
+
 ---
 
 ## 🌟 Overview
