@@ -57,7 +57,7 @@ export default function Home() {
           getCompanies({ limit: 3 }), // Fetch top 3 companies
           getActiveBlogs()
         ]);
-        
+
         if (statsData) {
           setStats({
             nurses: statsData.nurses > 1000 ? (statsData.nurses / 1000).toFixed(1) + "K+" : statsData.nurses,
@@ -143,154 +143,184 @@ export default function Home() {
       {/* ── NAVBAR ── */}
 
       {/* ── HERO ── */}
-      <section className="hero">
-        <div className="stars" id="stars" />
-
-        <div className="hero-text">
-          <div className="hero-badge">America's #1 Healthcare Recruitment Platform</div>
-          <h1>
-            Connecting <span>Nurses</span>{" "}
-            With Healthcare Employers Nationwide
-          </h1>
-          <p className="hero-sub">
-            Browse thousands of nursing jobs, discover top healthcare companies,
-            and build your career — all in one place.
-          </p>
-          <div className="hero-btns">
-            <Link href="/jobs" className="btn-primary">Find Nursing Jobs →</Link>
-            <a href="#" className="btn-secondary">List Your Company</a>
-          </div>
-          <div className="hero-stats">
-            <div className="stat">
-              <div className="stat-num">{stats.nurses}</div>
-              <div className="stat-label">Nurse Profiles</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">{stats.jobs}</div>
-              <div className="stat-label">Active Jobs</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">{stats.companies}</div>
-              <div className="stat-label">Companies</div>
-            </div>
-          </div>
+      <section className="relative min-h-[120vh] lg:min-h-0 lg:h-[calc(100vh-72px)] flex items-center bg-[#f8fafc] overflow-hidden">
+        {/* Background Image (Left side) */}
+        <div className="absolute inset-0 w-full lg:w-[60%] h-full">
+          <div
+            className="absolute inset-0 bg-cover bg-[center_top_20%]"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1584982751601-97d8cb07774e?q=80&w=2070')" }}
+          />
+          {/* Subtle blue overlay with blur */}
+          <div className="absolute inset-0 bg-[#002868]/80 backdrop-blur-[2px]"></div>
         </div>
 
-        {/* Search Card */}
-        <div className="hero-card">
-          <h2 style={{
-            fontFamily: "'Playfair Display', serif", fontSize: "1.8rem",
-            color: "var(--navy)", marginBottom: ".2rem", fontWeight: 700,
-          }}>
-            Grow Your Career With
-          </h2>
-          <h2 style={{
-            fontFamily: "'Playfair Display', serif", fontSize: "2.2rem",
-            color: "var(--red)", marginBottom: "1.5rem", fontWeight: 900,
-          }}>
-            America Needs Nurses
-          </h2>
+        {/* Curved White Overlay (Right side background) */}
+        <div className="hidden lg:block absolute inset-y-0 right-0 w-[45%] pointer-events-none z-0">
+          <svg className="absolute inset-0 h-full w-full drop-shadow-2xl" preserveAspectRatio="none" viewBox="0 0 100 100" fill="#f8fafc">
+            <path d="M 30 0 C -20 40, 20 70, 0 100 L 100 100 L 100 0 Z"></path>
+          </svg>
+        </div>
 
-          <div className="form-group">
-            <div className="search-field">
-              <span>🔍</span>
-              <input 
-                type="text" 
-                placeholder="Search Job Keywords.." 
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-              />
+        {/* Content Container */}
+        <div className="container mx-auto px-6 max-w-7xl relative z-10 flex flex-col lg:flex-row items-center justify-between h-full py-16 lg:py-0 gap-12 lg:gap-0">
+
+          {/* Left Text Content */}
+          <div className="w-full lg:w-[50%] text-white text-center lg:text-left">
+            <div className="inline-block px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black tracking-widest uppercase mb-6 shadow-sm">
+              America's #1 Healthcare Recruitment Platform
+            </div>
+            <h1 className="text-[2.5rem] lg:text-[3.5rem] xl:text-[4rem] font-black leading-[1.1] mb-6 tracking-tight drop-shadow-md">
+              Connecting <span className="text-[#C8102E] drop-shadow-none">Nurses</span><br className="hidden lg:block" /> With Healthcare Employers Nationwide
+            </h1>
+            <p className="text-lg text-blue-100/90 mb-10 font-bold leading-relaxed max-w-[90%] mx-auto lg:mx-0">
+              Browse thousands of nursing jobs, discover top healthcare companies, and build your career — all in one place.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+              <Link href="/jobs" className="w-full sm:w-auto px-8 py-4 bg-[#C8102E] hover:bg-[#a00c24] text-white rounded-xl font-black tracking-wide transition-all shadow-lg shadow-red-900/30 text-base flex items-center justify-center gap-2">
+                Find Nursing Jobs <ChevronRight size={18} strokeWidth={3} />
+              </Link>
+              <Link href="/employer/post_job" className="w-full sm:w-auto px-8 py-4 bg-transparent hover:bg-white/10 border-2 border-white/30 text-white rounded-xl font-black tracking-wide transition-all text-base flex items-center justify-center">
+                List Your Company
+              </Link>
+            </div>
+
+            {/* Stats */}
+            <div className="flex items-center gap-10 mt-16 pt-10 border-t border-white/10 justify-center lg:justify-start">
+              <div>
+                <div className="text-4xl xl:text-5xl font-black text-white drop-shadow-md">{stats.nurses}</div>
+                <div className="text-[10px] xl:text-xs font-black uppercase tracking-widest text-[#C8102E] mt-1">Nurse Profiles</div>
+              </div>
+              <div>
+                <div className="text-4xl xl:text-5xl font-black text-white drop-shadow-md">{stats.jobs}</div>
+                <div className="text-[10px] xl:text-xs font-black uppercase tracking-widest text-blue-200 mt-1">Active Jobs</div>
+              </div>
+              <div>
+                <div className="text-4xl xl:text-5xl font-black text-white drop-shadow-md">{stats.companies}</div>
+                <div className="text-[10px] xl:text-xs font-black uppercase tracking-widest text-blue-200 mt-1">Companies</div>
+              </div>
             </div>
           </div>
 
-          <div className="filter-grid">
-            <div className="form-group">
-              <label>Job Category</label>
-              <select 
-                className="filter-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option>Select Category</option>
-                <option>Registered Nurse (RN)</option>
-                <option>LPN / LVN</option>
-                <option>Nurse Practitioner (NP)</option>
-                <option>ICU / Critical Care</option>
-                <option>Emergency Room (ER)</option>
-                <option>Home Health</option>
-                <option>Pediatrics</option>
-                <option>Operating Room (OR)</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Job Type</label>
-              <select 
-                className="filter-select"
-                value={jobType}
-                onChange={(e) => setJobType(e.target.value)}
-              >
-                <option>All Type</option>
-                <option>Full-time</option>
-                <option>Part-time</option>
-                <option>Contract</option>
-                <option>Travel Nurse</option>
-                <option>Per Diem</option>
-              </select>
+          {/* Right Floating Card (Form) */}
+          <div className="w-full lg:w-[42%] relative z-20">
+            <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100">
+              <h2 className="text-2xl font-black text-[#002868] mb-1">
+                Grow Your Career With
+              </h2>
+              <h2 className="text-4xl font-black text-[#1a8c62] mb-8" style={{ color: "#1a8c62" /* JobStock vibrant green for contrast, or use red as you prefer */ }}>
+                <span className="text-[#C8102E]">America Needs Nurses</span>
+              </h2>
+
+              <div className="space-y-6">
+                {/* Search Keywords */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-gray-400">🔍</span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search Job Keywords.."
+                    className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none focus:ring-4 focus:ring-red-50 transition-all font-bold text-[#002868] placeholder-gray-400 bg-gray-50/50"
+                    value={keywords}
+                    onChange={(e) => setKeywords(e.target.value)}
+                  />
+                </div>
+
+                {/* Dropdowns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black tracking-widest uppercase text-gray-500 mb-2">Job Category</label>
+                    <select
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none bg-gray-50/50 hover:bg-gray-50 text-sm font-bold text-[#002868] cursor-pointer appearance-none transition-all"
+                      style={{ backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23002868%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem top 50%", backgroundSize: ".65rem auto" }}
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                    >
+                      <option>Select Category</option>
+                      <option>Registered Nurse (RN)</option>
+                      <option>LPN / LVN</option>
+                      <option>Nurse Practitioner (NP)</option>
+                      <option>ICU / Critical Care</option>
+                      <option>Emergency Room (ER)</option>
+                      <option>Home Health</option>
+                      <option>Pediatrics</option>
+                      <option>Operating Room (OR)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black tracking-widest uppercase text-gray-500 mb-2">Job Type</label>
+                    <select
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none bg-gray-50/50 hover:bg-gray-50 text-sm font-bold text-[#002868] cursor-pointer appearance-none transition-all"
+                      style={{ backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23002868%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem top 50%", backgroundSize: ".65rem auto" }}
+                      value={jobType}
+                      onChange={(e) => setJobType(e.target.value)}
+                    >
+                      <option>All Type</option>
+                      <option>Full-time</option>
+                      <option>Part-time</option>
+                      <option>Contract</option>
+                      <option>Travel Nurse</option>
+                      <option>Per Diem</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black tracking-widest uppercase text-gray-500 mb-2">Job Level</label>
+                    <select
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none bg-gray-50/50 hover:bg-gray-50 text-sm font-bold text-[#002868] cursor-pointer appearance-none transition-all"
+                      style={{ backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23002868%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem top 50%", backgroundSize: ".65rem auto" }}
+                      value={jobLevel}
+                      onChange={(e) => setJobLevel(e.target.value)}
+                    >
+                      <option>Entry Level</option>
+                      <option>Mid Level</option>
+                      <option>Senior Level</option>
+                      <option>Management</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black tracking-widest uppercase text-gray-500 mb-2">Experience</label>
+                    <select
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none bg-gray-50/50 hover:bg-gray-50 text-sm font-bold text-[#002868] cursor-pointer appearance-none transition-all"
+                      style={{ backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23002868%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem top 50%", backgroundSize: ".65rem auto" }}
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value)}
+                    >
+                      <option>1 Year</option>
+                      <option>2 Years</option>
+                      <option>3 Years</option>
+                      <option>5+ Years</option>
+                      <option>10+ Years</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Salary */}
+                <div>
+                  <label className="block text-[10px] font-black tracking-widest uppercase text-gray-500 mb-2">Expected Salary</label>
+                  <select
+                    className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#C8102E] outline-none bg-gray-50/50 hover:bg-gray-50 text-sm font-bold text-[#002868] cursor-pointer appearance-none transition-all"
+                    style={{ backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23002868%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem top 50%", backgroundSize: ".65rem auto" }}
+                    value={salaryRange}
+                    onChange={(e) => setSalaryRange(e.target.value)}
+                  >
+                    <option>Select Salary Range</option>
+                    <option>$50k – $70k</option>
+                    <option>$70k – $100k</option>
+                    <option>$100k – $150k</option>
+                    <option>$150k+</option>
+                  </select>
+                </div>
+
+                {/* Submit */}
+                <button
+                  onClick={handleSearch}
+                  className="w-full py-4 mt-2 bg-gradient-to-r from-[#C8102E] to-[#b30e28] hover:opacity-90 text-white rounded-xl font-black tracking-wide shadow-lg shadow-red-900/30 transition-all text-[15px] uppercase"
+                >
+                  Search Jobs
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="filter-grid">
-            <div className="form-group">
-              <label>Job Level</label>
-              <select 
-                className="filter-select"
-                value={jobLevel}
-                onChange={(e) => setJobLevel(e.target.value)}
-              >
-                <option>Entry Level</option>
-                <option>Mid Level</option>
-                <option>Senior Level</option>
-                <option>Management</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Experience</label>
-              <select 
-                className="filter-select"
-                value={experience}
-                onChange={(e) => setExperience(e.target.value)}
-              >
-                <option>1 Year</option>
-                <option>2 Years</option>
-                <option>3 Years</option>
-                <option>5+ Years</option>
-                <option>10+ Years</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Expected Salary</label>
-            <select 
-              className="filter-select" 
-              style={{ width: "100%" }}
-              value={salaryRange}
-              onChange={(e) => setSalaryRange(e.target.value)}
-            >
-              <option>Select Salary Range</option>
-              <option>$50k – $70k</option>
-              <option>$70k – $100k</option>
-              <option>$100k – $150k</option>
-              <option>$150k+</option>
-            </select>
-          </div>
-
-          <button 
-            onClick={handleSearch}
-            className="search-btn secondary-style"
-          >
-            Search Result
-          </button>
         </div>
       </section>
 
@@ -444,12 +474,12 @@ export default function Home() {
           {companies.length > 0 ? (
             companies.map((company, idx) => (
               <div className="company-card" key={company.id}>
-                <div 
-                  className="company-img" 
-                  style={{ 
+                <div
+                  className="company-img"
+                  style={{
                     background: company.bannerUrl ? `url(${formatUrl(company.bannerUrl)}) center/cover` : (idx % 2 === 0 ? "var(--red)" : "var(--navy)"),
-                    display: "flex", 
-                    alignItems: "center", 
+                    display: "flex",
+                    alignItems: "center",
                     justifyContent: "center",
                     overflow: "hidden",
                     position: "relative"
@@ -485,22 +515,22 @@ export default function Home() {
       <section className="blog-section py-32 px-6 bg-[#fcfcfd]">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-16 px-4">
-             <div>
-               <div className="section-tag">Resources & News</div>
-               <h2 className="text-5xl font-black text-[#002868] mt-4">Latest From <em>Our Blog</em></h2>
-             </div>
-             <Link href="/blog" className="hidden md:flex items-center gap-2 text-sm font-black uppercase tracking-widest text-[#C8102E] hover:text-[#002868] transition-colors">
-               Explore all articles <ChevronRight size={16} />
-             </Link>
+            <div>
+              <div className="section-tag">Resources & News</div>
+              <h2 className="text-5xl font-black text-[#002868] mt-4">Latest From <em>Our Blog</em></h2>
+            </div>
+            <Link href="/blog" className="hidden md:flex items-center gap-2 text-sm font-black uppercase tracking-widest text-[#C8102E] hover:text-[#002868] transition-colors">
+              Explore all articles <ChevronRight size={16} />
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {blogs.length > 0 ? blogs.map((blog) => (
               <Link key={blog.id} href={`/blog/${blog.slug}`} className="group bg-white rounded-[3rem] overflow-hidden shadow-xl border border-gray-50 flex flex-col h-full transform hover:-translate-y-2 transition-all duration-500">
                 <div className="relative h-64 overflow-hidden">
-                  <img 
-                    src={blog.imageUrl || "https://images.unsplash.com/photo-1576091160550-2173bc39978c?q=80&w=2070"} 
-                    alt={blog.title} 
+                  <img
+                    src={blog.imageUrl || "https://images.unsplash.com/photo-1576091160550-2173bc39978c?q=80&w=2070"}
+                    alt={blog.title}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000"
                   />
                   <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-[#002868] shadow-sm">
@@ -509,7 +539,7 @@ export default function Home() {
                 </div>
                 <div className="p-10 flex flex-col flex-1">
                   <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">
-                    <span className="flex items-center gap-1.5"><Calendar size={12} className="text-[#C8102E]" /> {new Date(blog.createdAt).toLocaleDateString([], {month: 'short', day: 'numeric'})}</span>
+                    <span className="flex items-center gap-1.5"><Calendar size={12} className="text-[#C8102E]" /> {new Date(blog.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
                     <span className="flex items-center gap-1.5"><Clock size={12} className="text-[#C8102E]" /> 12 min read</span>
                   </div>
                   <h3 className="text-2xl font-black text-[#002868] leading-tight mb-6 group-hover:text-[#C8102E] transition-colors line-clamp-2">
@@ -527,7 +557,7 @@ export default function Home() {
                 </div>
               </Link>
             )) : (
-              [1,2,3].map(i => (
+              [1, 2, 3].map(i => (
                 <div key={i} className="bg-white rounded-[3rem] h-[500px] animate-pulse border border-gray-100" />
               ))
             )}

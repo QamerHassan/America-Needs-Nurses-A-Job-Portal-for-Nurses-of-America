@@ -17,11 +17,12 @@ export interface AuthSession {
   email: string;
   userId: string;
   sessionId: string;
+  image?: string;
 }
 
 interface AuthContextValue {
   auth: AuthSession | null;
-  login: (userData: { id: string; email: string; role: UserRole }, token: string) => void;
+  login: (userData: { id: string; email: string; role: UserRole; image?: string }, token: string) => void;
   logout: () => void;
   isHydrated: boolean;
 }
@@ -66,13 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    (userData: { id: string; email: string; role: UserRole }, token: string) => {
+    (userData: { id: string; email: string; role: UserRole; image?: string }, token: string) => {
       const session: AuthSession = {
         token,
         role: userData.role,
         email: userData.email,
         userId: userData.id,
         sessionId: crypto.randomUUID(),
+        image: userData.image,
       };
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
       setAuth(session);

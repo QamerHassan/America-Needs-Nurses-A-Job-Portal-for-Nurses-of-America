@@ -1,15 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AppLogo from "./AppLogo";
 import LoginModal from "./LoginModal";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuth } from "../context/AuthContext";
+import { Bookmark, MessageCircle, Bell, User, Settings, LogOut, ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const [savedCount, setSavedCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
+  const [notifCount, setNotifCount] = useState(0);
+  const { auth, logout } = useAuth();
+
+  // Fetch counts when auth is ready
+  useEffect(() => {
+    if (auth?.userId) {
+      const fetchCounts = async () => {
+        try {
+          const { getSavedJobs, getConversations, getNotifications } = await import("../utils/api");
+          const [saved, convs, notifs] = await Promise.all([
+            getSavedJobs(auth.userId),
+            getConversations(auth.userId),
+            getNotifications(auth.userId)
+          ]);
+          setSavedCount(saved?.length || 0);
+          setMessageCount(convs?.filter((c: any) => c.unreadCount > 0).length || 0);
+          setNotifCount(notifs?.filter((n: any) => !n.isRead).length || 0);
+        } catch (err) {
+          console.error("Failed to fetch counts:", err);
+        }
+      };
+      fetchCounts();
+    }
+  }, [auth]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Hide the main navbar if we are in dashboards or public profile pages
   if (
@@ -22,30 +62,121 @@ export default function Navbar() {
     return null;
   }
 
-
   return (
     <>
       <nav className="ann-navbar">
         <div className="nav-container">
           <AppLogo className="h-10 w-auto" />
 
-          <ul className="nav-menu">
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/jobs">Jobs</Link></li>
-            <li><Link href="/about">About Us</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
-            <li><Link href="/pricing">Pricing</Link></li>
-            <li><Link href="/blog">Blog</Link></li>
-          </ul>
-
+          {(!auth || auth.role !== 'NURSE') && (
+            <ul className="nav-menu">
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/jobs">Jobs</Link></li>
+              <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
+              <li><Link href="/pricing">Pricing</Link></li>
+              <li><Link href="/blog">Blog</Link></li>
+            </ul>
+          )}
 
           <div className="nav-actions">
-            <button className="btn-signin" onClick={() => setIsLoginOpen(true)}>
-              Sign In
-            </button>
-            <Link href="/register" className="btn-register-today">
-              Register Today
-            </Link>
+            {auth && auth.role === 'NURSE' ? (
+              <div className="flex items-center gap-6">
+                {/* Saved Jobs */}
+                <Link 
+                  href="/saved-jobs" 
+                  onClick={() => setSavedCount(0)}
+                  className="relative text-[#002868] hover:text-[#C8102E] transition-colors"
+                >
+                  <Bookmark size={22} />
+                  {savedCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-[#C8102E] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                      {savedCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Messages */}
+                <Link 
+                  href="/messages" 
+                  onClick={() => setMessageCount(0)}
+                  className="relative text-[#002868] hover:text-[#C8102E] transition-colors"
+                >
+                  <MessageCircle size={22} />
+                  {messageCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-[#C8102E] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                      {messageCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Notifications */}
+                <Link 
+                  href="/notifications" 
+                  onClick={() => setNotifCount(0)}
+                  className="relative text-[#002868] hover:text-[#C8102E] transition-colors mr-2"
+                >
+                  <Bell size={22} />
+                  {notifCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#C8102E] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">
+                      {notifCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Profile Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-2 focus:outline-none"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[#002868] text-white flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                      {auth.image ? (
+                        <img src={auth.image} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={18} />
+                      )}
+                    </div>
+                    <ChevronDown size={14} className="text-gray-500" />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-3 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 overflow-hidden">
+                      <Link 
+                        href="/profile" 
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#002868] hover:bg-gray-50 transition-colors"
+                      >
+                        <User size={16} className="text-gray-400" /> My Profile
+                      </Link>
+                      <Link 
+                        href="/settings" 
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#002868] hover:bg-gray-50 transition-colors"
+                      >
+                        <Settings size={16} className="text-gray-400" /> Settings
+                      </Link>
+                      <div className="h-px bg-gray-100 my-1"></div>
+                      <button 
+                        onClick={() => { setIsDropdownOpen(false); logout(); window.location.href = '/'; }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#C8102E] hover:bg-red-50 transition-colors text-left"
+                      >
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                <button className="btn-signin" onClick={() => setIsLoginOpen(true)}>
+                  Sign In
+                </button>
+                <Link href="/register" className="btn-register-today">
+                  Register Today
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>

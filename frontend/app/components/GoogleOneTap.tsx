@@ -89,7 +89,7 @@ export default function GoogleOneTap() {
         } else if (role === "EMPLOYER") {
           router.push("/employer/dashboard");
         } else {
-          router.push("/nurse");
+          router.push("/jobs");
         }
       } catch (err: any) {
         // Silent

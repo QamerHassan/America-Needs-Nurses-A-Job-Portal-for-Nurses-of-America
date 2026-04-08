@@ -22,7 +22,7 @@ function redirectByRole(role: string, router: ReturnType<typeof useRouter>, onCl
   } else if (role === "EMPLOYER") {
     router.push("/employer/dashboard");
   } else {
-    router.push("/nurse");
+    router.push("/jobs");
   }
 }
 
