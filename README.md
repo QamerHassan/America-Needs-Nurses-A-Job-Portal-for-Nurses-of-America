@@ -1,7 +1,7 @@
 # 🏥 America Needs Nurses (ANN) Platform
 ### *Beyond a Job Board. A Career Ecosystem.*
 
-![ANN Banner](frontend/public/hero-bg.png)
+![ANN Banner](assets/hero-banner.png)
 
 <p align="center">
   <img src="https://img.shields.io/badge/NEXT.JS-15.0_APP_ROUTER-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
